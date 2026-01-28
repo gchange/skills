@@ -1,0 +1,17 @@
+{
+  "name": "baidupan",
+  "description": "百度网盘 API 操作：文件列表、搜索、上传、下载、管理",
+  "version": "1.0.0",
+  "author": "gchange",
+  "homepage": "https://pan.baidu.com/union/doc",
+  "metadata": {
+    "clawdbot": {
+      "emoji": "☁️",
+      "requires": {
+        "bins": ["curl", "jq"],
+        "env": ["BAIDU_PAN_ACCESS_TOKEN"]
+      },
+      "primaryEnv": "BAIDU_PAN_ACCESS_TOKEN"
+    }
+  }
+}
