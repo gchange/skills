@@ -1,0 +1,12 @@
+{
+  "name": "template",
+  "description": "技能模板",
+  "version": "0.0.1",
+  "author": "gchange",
+  "metadata": {
+    "clawdbot": {
+      "emoji": "🔧",
+      "requires": {}
+    }
+  }
+}
