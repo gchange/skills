@@ -1,13 +1,13 @@
 ---
 name: baidupan
-description: 百度网盘 API 操作：文件列表、搜索、上传、下载、管理（复制/移动/删除/重命名）、用户信息。
+description: 百度网盘 API 操作：文件列表、搜索、上传、下载、管理（复制/移动/删除/重命名）、用户信息。包含 BaiduPCS-Go 增强功能。
 homepage: https://pan.baidu.com/union/doc
-metadata: {"clawdbot":{"emoji":"☁️","requires":{"bins":["curl","jq"],"env":["BAIDU_PAN_ACCESS_TOKEN"]},"primaryEnv":"BAIDU_PAN_ACCESS_TOKEN"}}
+metadata: {"clawdbot":{"emoji":"☁️","requires":{"bins":["curl","jq","go","git"],"env":["BAIDU_PAN_ACCESS_TOKEN"]},"primaryEnv":"BAIDU_PAN_ACCESS_TOKEN"}}
 ---
 
 # 百度网盘 (Baidu Pan)
 
-通过百度网盘开放 API 管理云端文件。
+通过百度网盘开放 API 管理云端文件。包含两个层面的功能：轻量级API脚本和BaiduPCS-Go增强工具。
 
 ## 配置
 
@@ -30,7 +30,49 @@ open "https://openapi.baidu.com/oauth/2.0/authorize?response_type=code&client_id
 curl -s "https://openapi.baidu.com/oauth/2.0/token?grant_type=authorization_code&code=CODE&client_id=APP_KEY&client_secret=SECRET_KEY&redirect_uri=oob" | jq
 ```
 
+## BaiduPCS-Go 安装与配置
+
+BaiduPCS-Go 是一个功能完整的百度网盘命令行客户端，提供更全面的功能。
+
+### 安装 BaiduPCS-Go
+
+```bash
+# 安装必要依赖
+sudo apt-get install -y golang-go git
+
+# 设置Go环境变量
+export GOPATH=$HOME/go
+export GOCACHE=$HOME/.cache/go-build
+mkdir -p $GOPATH $GOCACHE
+
+# 克隆并构建 BaiduPCS-Go
+cd /tmp && git clone https://github.com/qjfoidnh/BaiduPCS-Go.git
+cd /tmp/BaiduPCS-Go
+
+# 修改 go.mod 以兼容当前 Go 版本
+sed -i 's/go 1.23/go 1.22/' go.mod
+
+# 构建二进制文件
+go build -o BaiduPCS-Go
+
+# 安装到系统路径
+sudo mv /tmp/BaiduPCS-Go/BaiduPCS-Go /usr/local/bin/
+sudo chmod +x /usr/local/bin/BaiduPCS-Go
+```
+
+### 使用 BDUSS 和 STOKEN 登录
+
+```bash
+# 使用 BDUSS 和 STOKEN 登录
+BaiduPCS-Go login --bduss=YOUR_BDUSS --stoken=YOUR_STOKEN
+
+# 或者使用 accessToken
+BaiduPCS-Go setastoken YOUR_ACCESS_TOKEN
+```
+
 ## 快速开始
+
+### 使用原生API脚本
 
 ```bash
 # 查看用户信息
@@ -44,6 +86,31 @@ curl -s "https://openapi.baidu.com/oauth/2.0/token?grant_type=authorization_code
 
 # 搜索文件
 {baseDir}/scripts/baidupan.sh search "关键词"
+
+# 上传文件
+{baseDir}/scripts/baidupan.sh upload /path/to/local/file "/path/on/baidu/disk"
+```
+
+### 使用 BaiduPCS-Go
+
+```bash
+# 查看网盘容量
+BaiduPCS-Go quota
+
+# 列出目录
+BaiduPCS-Go ls /
+
+# 上传文件
+BaiduPCS-Go upload /path/to/local/file /remote/path/
+
+# 下载文件
+BaiduPCS-Go download /remote/path/file /local/path/
+
+# 创建目录
+BaiduPCS-Go mkdir /path/to/new/directory
+
+# 移动/重命名文件
+BaiduPCS-Go mv /path/to/source /path/to/destination
 ```
 
 ## 常用命令
@@ -76,6 +143,18 @@ curl -s "https://openapi.baidu.com/oauth/2.0/token?grant_type=authorization_code
 {baseDir}/scripts/baidupan.sh move /源路径 /目标目录                   # 移动
 {baseDir}/scripts/baidupan.sh rename /文件路径 新名称                  # 重命名
 {baseDir}/scripts/baidupan.sh delete /文件路径                         # 删除
+```
+
+### 使用 BaiduPCS-Go 的增强功能
+```bash
+BaiduPCS-Go quota                           # 查看容量
+BaiduPCS-Go ls /                            # 列出文件
+BaiduPCS-Go upload local_file /path/        # 上传文件
+BaiduPCS-Go download /path/file local_path  # 下载文件
+BaiduPCS-Go mkdir /path/to/dir              # 创建目录
+BaiduPCS-Go mv /path/old /path/new          # 移动/重命名
+BaiduPCS-Go rm /path/to/file                # 删除文件
+BaiduPCS-Go tree /path/                     # 树状显示目录
 ```
 
 ### 获取文件信息
@@ -113,3 +192,5 @@ curl -s "https://openapi.baidu.com/oauth/2.0/token?grant_type=authorization_code
 - Refresh Token 只能使用一次，刷新后会返回新的
 - 路径需要 URL 编码（脚本会自动处理）
 - 文件操作前请确认路径正确，删除不可恢复
+- 上传功能可能需要STOKEN才能正常工作，仅BDUSS或访问令牌可能不足以完成上传操作
+- BaiduPCS-Go 提供了更稳定和全面的百度网盘访问能力
