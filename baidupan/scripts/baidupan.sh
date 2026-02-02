@@ -256,32 +256,22 @@ cmd_rename() {
 
 # 上传文件
 cmd_upload() {
-  check_token
+  if ! command -v BaiduPCS-Go &> /dev/null; then
+    echo "错误: BaiduPCS-Go 未安装" >&2
+    echo "请先运行: {baseDir}/install_baidupcs_go.sh" >&2
+    exit 1
+  fi
+  
   local local_file="$1"
-  local remote_dir="$2"  # 期望接收目录路径
+  local remote_dir="$2"
   
   if [[ ! -f "$local_file" ]]; then
     echo "错误: 本地文件不存在: $local_file" >&2
     exit 1
   fi
   
-  local filename
-  filename=$(basename "$local_file")
-  
-  # 如果 remote_dir 以 / 结尾，说明是目录；否则是完整路径
-  local remote_path
-  if [[ "${remote_dir}" == */ ]]; then
-    remote_path="${remote_dir}${filename}"
-  else
-    remote_path="${remote_dir}"
-  fi
-  
-  # 执行文件上传
-  # 使用百度网盘 PCS API，需要正确设置 User-Agent
-  curl -sS -X POST "https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=${BAIDU_PAN_ACCESS_TOKEN}&path=$(urlencode "$remote_path")" \
-    -H "User-Agent: netdisk" \
-    -H "Content-Type: multipart/form-data" \
-    -F "file=@${local_file}" | jq '.'
+  # 使用 BaiduPCS-Go 上传文件
+  BaiduPCS-Go upload "$local_file" "$remote_dir"
 }
 
 # 刷新 token
@@ -334,7 +324,7 @@ cmd_help() {
   move <src> <dest>         移动文件
   rename <path> <newname>   重命名
   delete <path>             删除文件
-  upload <local_file> <remote_path> 上传文件
+  upload <local_file> <remote_path>  上传文件（需安装BaiduPCS-Go）
   refresh                   刷新 token
   help                      显示帮助
 

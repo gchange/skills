@@ -50,9 +50,11 @@ metadata: {"clawdbot":{"emoji":"☁️","requires":{"bins":["curl","jq","go","gi
 # 创建目录
 {baseDir}/scripts/baidupan.sh mkdir /path/to/new/directory
 
-# 上传文件
+# 上传文件（使用BaiduPCS-Go）
 {baseDir}/scripts/baidupan.sh upload /path/to/local/file "/path/on/baidu/disk"
 ```
+
+注意：上传功能依赖于BaiduPCS-Go工具，因为原生API可能存在上传限制。确保已按上述方式安装BaiduPCS-Go。
 
 ### 使用 BaiduPCS-Go
 
