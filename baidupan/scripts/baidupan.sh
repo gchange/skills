@@ -254,6 +254,36 @@ cmd_rename() {
   file_manager "rename" "$filelist"
 }
 
+# 上传文件
+cmd_upload() {
+  check_token
+  local local_file="$1"
+  local remote_dir="$2"  # 期望接收目录路径
+  
+  if [[ ! -f "$local_file" ]]; then
+    echo "错误: 本地文件不存在: $local_file" >&2
+    exit 1
+  fi
+  
+  local filename
+  filename=$(basename "$local_file")
+  
+  # 如果 remote_dir 以 / 结尾，说明是目录；否则是完整路径
+  local remote_path
+  if [[ "${remote_dir}" == */ ]]; then
+    remote_path="${remote_dir}${filename}"
+  else
+    remote_path="${remote_dir}"
+  fi
+  
+  # 执行文件上传
+  # 使用百度网盘 PCS API，需要正确设置 User-Agent
+  curl -sS -X POST "https://c.pcs.baidu.com/rest/2.0/pcs/file?method=upload&access_token=${BAIDU_PAN_ACCESS_TOKEN}&path=$(urlencode "$remote_path")" \
+    -H "User-Agent: netdisk" \
+    -H "Content-Type: multipart/form-data" \
+    -F "file=@${local_file}" | jq '.'
+}
+
 # 刷新 token
 cmd_refresh() {
   if [[ -z "${BAIDU_PAN_REFRESH_TOKEN:-}" ]]; then
@@ -304,6 +334,7 @@ cmd_help() {
   move <src> <dest>         移动文件
   rename <path> <newname>   重命名
   delete <path>             删除文件
+  upload <local_file> <remote_path> 上传文件
   refresh                   刷新 token
   help                      显示帮助
 
@@ -333,6 +364,7 @@ main() {
     move) cmd_move "$@" ;;
     rename) cmd_rename "$@" ;;
     delete) cmd_delete "$@" ;;
+    upload) cmd_upload "$@" ;;
     refresh) cmd_refresh "$@" ;;
     help|--help|-h) cmd_help ;;
     *) echo "未知命令: $cmd"; cmd_help; exit 1 ;;

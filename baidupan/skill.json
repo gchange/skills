@@ -1,14 +1,14 @@
 {
   "name": "baidupan",
-  "description": "百度网盘 API 操作：文件列表、搜索、上传、下载、管理",
-  "version": "1.0.0",
+  "description": "百度网盘 API 操作：文件列表、搜索、上传、下载、管理（复制/移动/删除/重命名）、用户信息。包含 BaiduPCS-Go 增强功能。",
+  "version": "1.1.0",
   "author": "gchange",
   "homepage": "https://pan.baidu.com/union/doc",
   "metadata": {
     "clawdbot": {
       "emoji": "☁️",
       "requires": {
-        "bins": ["curl", "jq"],
+        "bins": ["curl", "jq", "go", "git"],
         "env": ["BAIDU_PAN_ACCESS_TOKEN"]
       },
       "primaryEnv": "BAIDU_PAN_ACCESS_TOKEN"
